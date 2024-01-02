@@ -1,0 +1,123 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using S7Net;
+using S7Net.Profinet;
+
+
+namespace S7Net
+{
+
+
+    public partial class Form1 : Form
+    {
+
+
+        private PLC plc = null;
+        private ExceptionCode errCode;
+
+// Określenie Racka i Slotu
+
+        short Rack = 0;
+        short Slot = 0;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+
+            
+
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(this, ex.Message, "Notification", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+
+
+            try
+            {
+                if (string.IsNullOrEmpty(txtIPaddress.Text)) throw new Exception("Brak Adresu IP");
+           
+                CPU_Type cpuType = CPU_Type.S7300;
+                string ipAddress = txtIPaddress.Text;
+                
+                plc = new PLC(cpuType, ipAddress, Rack, Slot);
+                if (!plc.IsAvailable) throw new Exception("Brak połączenia z PLC");
+                errCode = plc.Open();
+                if (errCode != ExceptionCode.ExceptionNo) throw new Exception(plc.lastErrorString);
+                //this.SetEnabledBotton(false);
+
+                if (plc.IsAvailable) toolStripStatusLabel1.Text = "Połączono z:"+ipAddress;
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+
+
+
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (errCode != ExceptionCode.ExceptionNo) return;
+                
+                plc.Write("M102.2", 1); 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                if (errCode != ExceptionCode.ExceptionNo) return;
+
+                plc.Write("M102.2", 0);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+
+        }
+    }
+
+
+}
